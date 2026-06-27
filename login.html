@@ -3,28 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login VPN Saya</title>
+    <title>Masuk - Panel VPN</title>
     <style>
-        body { font-family: Arial; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
-        .box { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
-        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+            padding: 20px;
+        }
+        .login-card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 40px;
+            padding: 48px 40px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            transition: 0.3s;
+        }
+        .login-card:hover {
+            border-color: rgba(250,171,65,0.3);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .logo-icon {
+            display: inline-block;
+            background: linear-gradient(135deg, #faab41, #f6821f);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 12px 30px rgba(250,171,65,0.3);
+        }
+        .logo-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+            display: block;
+        }
+        .logo h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        .logo p {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-top: 6px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            font-size: 16px;
+            transition: 0.3s;
+            outline: none;
+        }
+        .form-group input:focus {
+            border-color: #faab41;
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 0 4px rgba(250,171,65,0.15);
+        }
+        .form-group input::placeholder {
+            color: #64748b;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #faab41, #f6821f);
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(250,171,65,0.25);
+            margin-top: 8px;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(250,171,65,0.4);
+        }
+        .btn-login:active { transform: scale(0.98); }
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .error-msg {
+            background: rgba(239,68,68,0.15);
+            border-left: 4px solid #ef4444;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #fca5a5;
+            font-size: 14px;
+            margin-top: 16px;
+            display: none;
+        }
+        .error-msg.show { display: block; }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #64748b;
+            font-size: 13px;
+        }
+        .footer a {
+            color: #faab41;
+            text-decoration: none;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 480px) {
+            .login-card { padding: 32px 24px; }
+        }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>🔐 Login</h2>
-        <p>Masukkan Password Admin</p>
-        <input type="password" id="pwd" placeholder="Ketik password...">
-        <button onclick="login()">Masuk</button>
-        <p id="info" style="color:red; text-align:center;"></p>
+    <div class="login-card">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+            </div>
+            <h1>Panel VPN</h1>
+            <p>Masuk untuk mengelola konfigurasi</p>
+        </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Kata Sandi Admin</label>
+                <input type="password" id="password" placeholder="Masukkan password..." required autofocus>
+            </div>
+            <button type="submit" class="btn-login" id="loginBtn">Masuk</button>
+            <div class="error-msg" id="errorMsg"></div>
+        </form>
+        <div class="footer">
+            Didukung oleh <a href="https://github.com/cmliu/edgetunnel" target="_blank">edgetunnel</a>
+        </div>
     </div>
     <script>
-        async function login() {
-            const pwd = document.getElementById('pwd').value;
-            const info = document.getElementById('info');
-            if (!pwd) { info.innerText = 'Password tidak boleh kosong!'; return; }
-
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pwd = document.getElementById('password').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('errorMsg');
+            err.classList.remove('show');
+            if (!pwd) {
+                err.textContent = '❌ Password tidak boleh kosong!';
+                err.classList.add('show');
+                return;
+            }
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Memproses...';
             try {
                 const res = await fetch('/login', {
                     method: 'POST',
@@ -33,17 +193,18 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    window.location.href = '/admin'; // Redirect ke dashboard
+                    window.location.href = '/admin';
                 } else {
-                    info.innerText = '❌ Password salah!';
+                    err.textContent = '❌ Password salah, coba lagi.';
+                    err.classList.add('show');
                 }
-            } catch (e) {
-                info.innerText = 'Terjadi error: ' + e.message;
+            } catch (error) {
+                err.textContent = '⚠️ Terjadi kesalahan jaringan.';
+                err.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Masuk';
             }
-        }
-        // Tekan Enter untuk login
-        document.getElementById('pwd').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') login();
         });
     </script>
 </body>
