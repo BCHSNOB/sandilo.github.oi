@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard VPN</title>
+    <style>
+        body { font-family: Arial; background: #f4f6f8; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        button { padding: 10px 20px; margin: 5px 5px 5px 0; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        button.danger { background: #dc3545; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto; }
+        .btn-logout { float: right; background: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ Dashboard Saya <a href="/logout"><button class="btn-logout">Logout</button></a></h1>
+        
+        <div>
+            <button onclick="getConfig()">📥 Lihat Konfigurasi</button>
+            <button onclick="resetConfig()" class="danger">🔄 Reset ke Default</button>
+            <button onclick="viewLogs()">📜 Lihat Log</button>
+        </div>
+        <hr>
+        <h3>Hasil:</h3>
+        <pre id="output">Klik tombol di atas untuk melihat data...</pre>
+    </div>
+
+    <script>
+        // Fungsi untuk mengambil data (GET)
+        async function fetchData(url) {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        }
+
+        // Fungsi untuk menampilkan output
+        function showOutput(data) {
+            document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // 1. Lihat Config
+        async function getConfig() {
+            try {
+                const data = await fetchData('/admin/config.json');
+                showOutput(data);
+            } catch (e) {
+                document.getElementById('output').textContent = 'Error: ' + e.message;
+            }
+        }
+
+        // 2. Reset Config (POST)
+        async function resetConfig() {
+            if (!confirm('Yakin mau reset semua konfigurasi ke default?')) return;
+            try {
+                const res = await fetch('/admin/init');
+                const data = await res.json();
+                showOutput(data);
+            } catch (e) {
+                document.getElementById('output').textContent = 'Error: ' + e.message;
+            }
+        }
+
+        // 3. Lihat Log
+        async function viewLogs() {
+            try {
+                const data = await fetchData('/admin/log.json');
+                showOutput(data);
+            } catch (e) {
+                document.getElementById('output').textContent = 'Error: ' + e.message;
+            }
+        }
+
+        // Auto-load config saat halaman dibuka
+        window.onload = getConfig;
+    </script>
+</body>
+</html>
